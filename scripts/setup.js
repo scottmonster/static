@@ -9,9 +9,7 @@ const baseHtmlPath = resolve(projectDirectory, 'base.html');
 const basePdfPath = resolve(projectDirectory, 'base.pdf');
 const pagesDirectory = resolve(projectDirectory, 'pages');
 const pdfsDirectory = resolve(projectDirectory, 'pdfs');
-const rawPagesBaseUrl = 'https://raw.githubusercontent.com/scottmonster/static/master/pages/';
-
-const repoPages = 'https://raw.githubusercontent.com/scottmonster/static/master/pages'
+const repoIo = 'https://scottmonster.github.io/static/master/pages/';
 
 function usage() {
 	console.error(`Usage: scripts/setup.js <name> [--img <image_file>] [--pdf <pdf_file>]
@@ -115,7 +113,7 @@ try {
 	const pdf = imagePath
 		? await createPdfFromImage(imagePath)
 		: await PDFDocument.load(await readFile(pdfPath ?? basePdfPath));
-	const pageUrl = new URL(`${encodeURIComponent(name)}.html`, rawPagesBaseUrl).href;
+	const pageUrl = new URL(`${encodeURIComponent(name)}.html`, repoIo).href;
 
 	for (const page of pdf.getPages()) {
 		addFullPageUriLink(pdf, page, pageUrl);

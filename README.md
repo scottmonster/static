@@ -2,8 +2,8 @@
 Its just random stuff brother
 
 
-https://raw.githubusercontent.com/scottmonster/static/master/pages/random.html
+https://scottmonster.github.io/static/master/pages/random.html
 
 
 
-[Pages](https://raw.githubusercontent.com/scottmonster/static/master/pages)
+[Base](https://scottmonster.github.io/static/master/pages/base.html)

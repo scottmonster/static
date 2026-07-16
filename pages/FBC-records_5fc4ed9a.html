@@ -1,254 +1,312 @@
 <!doctype html>
 <html lang="en">
-<head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>Got`em</title>
-	<style>
-		html, body {
-			background-color: black;
-		}
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Got`em</title>
+    <style>
+      html,
+      body {
+        background-color: black;
+      }
 
-		body {
-			margin: 0;
-			min-height: 100vh;
-		}
+      body {
+        margin: 0;
+        min-height: 100vh;
+      }
 
-		#rick-roll-background {
-			position: fixed;
-      --blur: 18px;
-			inset: -24px;
-			width: calc(100vw + 48px);
-			height: calc(100vh + 48px);
-			object-fit: cover;
-			filter: blur(18px);
-			opacity: 0.45;
-			pointer-events: none;
-		}
+      #rick-roll-background {
+        position: fixed;
+        --blur: 18px;
+        inset: -24px;
+        width: calc(100vw + 48px);
+        height: calc(100vh + 48px);
+        object-fit: cover;
+        filter: blur(18px);
+        opacity: 0.45;
+        pointer-events: none;
+      }
 
-		#rick-roll-background[hidden] {
-			display: none;
-		}
+      #rick-roll-background[hidden] {
+        display: none;
+      }
 
-		#random-gif {
-			position: relative;
-			z-index: 1;
-			display: block;
-			width: 100vw;
-			height: 100vh;
-			object-fit: contain;
-			object-position: center;
-      
-		}
-	</style>
-</head>
-<body>
-	<img id="rick-roll-background" alt="" hidden>
-	<img id="random-gif" alt="Random GIF">
-	<script>
-		const assetBaseUrl = new URL('../assets/', location.href);
-		const filenames = [
-'bamboozled.gif',
-'dumb-youre-really-dumb.gif',
-'gordon-ramsay-idiot-sandwich.gif',
-'gotcha-b.gif',
-'gotcha-i-got-you.gif',
-'hes-a-fraud-joe-biden.gif',
-'hes-a-liar-liar.gif',
-'hes-a-liar-upset.gif',
-'hes-full-of-shit-ralph-macchio.gif',
-'it-was-all-a-lie-lie.gif',
-'kevinmcgarry-mcgarries.gif',
-'rickroll-roll.gif',
-'tricked-deceived.gif',
-'wedding-crashers-will-ferrell.gif',
-'we-got-em.gif',
-'you-tricked-me-gabby.gif'
-		];
+      #random-gif {
+        position: relative;
+        z-index: 1;
+        display: block;
+        width: 100vw;
+        height: 100vh;
+        object-fit: contain;
+        object-position: center;
+      }
+    </style>
+  </head>
+  <body>
+    <img id="rick-roll-background" alt="" hidden />
+    <img id="random-gif" src="../assets/rickroll-roll.gif" alt="Random GIF" />
+    <script>
+      const assetBaseUrl = new URL("../assets/", location.href);
+      const filenames = [
+        "bamboozled.gif",
+        "dumb-youre-really-dumb.gif",
+        "gordon-ramsay-idiot-sandwich.gif",
+        "gotcha-b.gif",
+        "gotcha-i-got-you.gif",
+        "hes-a-fraud-joe-biden.gif",
+        "hes-a-liar-liar.gif",
+        "hes-a-liar-upset.gif",
+        "hes-full-of-shit-ralph-macchio.gif",
+        "it-was-all-a-lie-lie.gif",
+        "kevinmcgarry-mcgarries.gif",
+        "rickroll-roll.gif",
+        "tricked-deceived.gif",
+        "wedding-crashers-will-ferrell.gif",
+        "we-got-em.gif",
+        "you-tricked-me-gabby.gif"
+      ];
 
-		const storageKey = 'static.pages.base.remaining-gifs.v1';
-		const twoLoopThresholdMs = 4_720;
-		const rick_roll_bg = true;
-		const rickRollFilename = 'rickroll-roll.gif';
+      const storageKey = "static.pages.base.remaining-gifs.v1";
+      const DEBUG = false;
+      const twoLoopThresholdMs = 4_720;
+      const rick_roll_bg = true;
+      const default_playtime = 1.5;
+      const rickRollFilename = "rickroll-roll.gif";
 
-		function readSubBlocks(bytes, offset) {
-			while (offset < bytes.length) {
-				const blockSize = bytes[offset++];
-				if (blockSize === 0) return offset;
-				offset += blockSize;
-			}
+      function debugLog(...args) {
+        if (DEBUG) console.log(...args);
+      }
 
-			throw new Error('Unexpected end of GIF data.');
-		}
+      function debugCount(label) {
+        if (DEBUG) console.count(label);
+      }
 
-		function getGifLoopDurationMs(bytes) {
-			if (
-				bytes.length < 13 ||
-				String.fromCharCode(...bytes.slice(0, 6)) !== 'GIF87a' &&
-				String.fromCharCode(...bytes.slice(0, 6)) !== 'GIF89a'
-			) {
-				throw new Error('Not a GIF file.');
-			}
+      function readSubBlocks(bytes, offset) {
+        while (offset < bytes.length) {
+          const blockSize = bytes[offset++];
+          if (blockSize === 0) return offset;
+          offset += blockSize;
+        }
 
-			let offset = 13;
-			let frameDelayMs = 100;
-			let loopDurationMs = 0;
-			let frameCount = 0;
-			const hasGlobalColorTable = (bytes[10] & 0x80) !== 0;
+        throw new Error("Unexpected end of GIF data.");
+      }
 
-			if (hasGlobalColorTable) {
-				offset += 3 * (1 << ((bytes[10] & 0x07) + 1));
-			}
+      function getGifLoopDurationMs(bytes) {
+        if (
+          bytes.length < 13 ||
+          (String.fromCharCode(...bytes.slice(0, 6)) !== "GIF87a" &&
+            String.fromCharCode(...bytes.slice(0, 6)) !== "GIF89a")
+        ) {
+          throw new Error("Not a GIF file.");
+        }
 
-			while (offset < bytes.length) {
-				const blockType = bytes[offset++];
+        let offset = 13;
+        let frameDelayMs = 100;
+        let loopDurationMs = 0;
+        let frameCount = 0;
+        const hasGlobalColorTable = (bytes[10] & 0x80) !== 0;
 
-				if (blockType === 0x3b) break; // Trailer
+        if (hasGlobalColorTable) {
+          offset += 3 * (1 << ((bytes[10] & 0x07) + 1));
+        }
 
-				if (blockType === 0x21) { // Extension introducer
-					const label = bytes[offset++];
-					const blockSize = bytes[offset++];
+        while (offset < bytes.length) {
+          const blockType = bytes[offset++];
 
-					if (label === 0xf9 && blockSize === 4) { // Graphic Control Extension
-						const delayCentiseconds = bytes[offset + 1] | (bytes[offset + 2] << 8);
-						frameDelayMs = delayCentiseconds === 0 ? 100 : delayCentiseconds * 10;
-						offset += blockSize;
-						if (bytes[offset++] !== 0) throw new Error('Invalid graphic control extension.');
-					} else {
-						offset += blockSize;
-						offset = readSubBlocks(bytes, offset);
-					}
-					continue;
-				}
+          if (blockType === 0x3b) break; // Trailer
 
-				if (blockType === 0x2c) { // Image descriptor
-					offset += 8;
-					const packedFields = bytes[offset++];
-					if (packedFields & 0x80) {
-						offset += 3 * (1 << ((packedFields & 0x07) + 1));
-					}
-					offset += 1; // LZW minimum code size
-					offset = readSubBlocks(bytes, offset);
-					loopDurationMs += frameDelayMs;
-					frameCount += 1;
-					frameDelayMs = 100;
-					continue;
-				}
+          if (blockType === 0x21) {
+            // Extension introducer
+            const label = bytes[offset++];
+            const blockSize = bytes[offset++];
 
-				throw new Error('Unrecognized GIF block.');
-			}
+            if (label === 0xf9 && blockSize === 4) {
+              // Graphic Control Extension
+              const delayCentiseconds =
+                bytes[offset + 1] | (bytes[offset + 2] << 8);
+              frameDelayMs =
+                delayCentiseconds === 0 ? 100 : delayCentiseconds * 10;
+              offset += blockSize;
+              if (bytes[offset++] !== 0)
+                throw new Error("Invalid graphic control extension.");
+            } else {
+              offset += blockSize;
+              offset = readSubBlocks(bytes, offset);
+            }
+            continue;
+          }
 
-			if (frameCount === 0) throw new Error('GIF contains no frames.');
-			return loopDurationMs;
-		}
+          if (blockType === 0x2c) {
+            // Image descriptor
+            offset += 8;
+            const packedFields = bytes[offset++];
+            if (packedFields & 0x80) {
+              offset += 3 * (1 << ((packedFields & 0x07) + 1));
+            }
+            offset += 1; // LZW minimum code size
+            offset = readSubBlocks(bytes, offset);
+            loopDurationMs += frameDelayMs;
+            frameCount += 1;
+            frameDelayMs = 100;
+            continue;
+          }
 
-		async function getGifDurations() {
-			const results = await Promise.all(filenames.map(async (filename) => {
-				try {
-					const url = new URL(filename, assetBaseUrl);
-					const response = await fetch(url);
-					if (!response.ok) throw new Error(`Request failed with ${response.status}.`);
+          throw new Error("Unrecognized GIF block.");
+        }
 
-					const durationMs = getGifLoopDurationMs(new Uint8Array(await response.arrayBuffer()));
-					console.log(`${filename}: ${(durationMs / 1000).toFixed(2)}s`);
-					return [filename, durationMs];
-				} catch (error) {
-					console.warn(`Could not determine runtime for ${filename}.`, error);
-					return null;
-				}
-			}));
+        if (frameCount === 0) throw new Error("GIF contains no frames.");
+        return loopDurationMs;
+      }
 
-			return new Map(results.filter(Boolean));
-		}
+      function getLoopCount(durationMs) {
+        return durationMs < twoLoopThresholdMs ? 2 : 1;
+      }
 
-		function getLoopCount(durationMs) {
-			return durationMs < twoLoopThresholdMs ? 2 : 1;
-		}
+      function shuffle(items) {
+        for (let index = items.length - 1; index > 0; index -= 1) {
+          const randomIndex = Math.floor(Math.random() * (index + 1));
+          [items[index], items[randomIndex]] = [
+            items[randomIndex],
+            items[index]
+          ];
+        }
 
-		function shuffle(items) {
-			for (let index = items.length - 1; index > 0; index -= 1) {
-				const randomIndex = Math.floor(Math.random() * (index + 1));
-				[items[index], items[randomIndex]] = [items[randomIndex], items[index]];
-			}
+        return items;
+      }
 
-			return items;
-		}
+      const image = document.getElementById("random-gif");
+      const backgroundImage = document.getElementById("rick-roll-background");
+      const playableFilenames = filenames.filter(
+        (filename) => !rick_roll_bg || filename !== rickRollFilename
+      );
 
-		const image = document.getElementById('random-gif');
-		const backgroundImage = document.getElementById('rick-roll-background');
+      if (rick_roll_bg) {
+        backgroundImage.hidden = false;
+        backgroundImage.src = new URL(rickRollFilename, assetBaseUrl);
+      }
 
-		if (rick_roll_bg) {
-			backgroundImage.hidden = false;
-			backgroundImage.src = new URL(rickRollFilename, assetBaseUrl);
-		}
+      async function startPlaylist() {
+        if (rick_roll_bg) {
+          await new Promise((resolve) =>
+            setTimeout(resolve, default_playtime * 1000)
+          );
+        }
 
-		async function startPlaylist() {
-			const durations = await getGifDurations();
-			const playableFilenames = filenames.filter((filename) =>
-				durations.has(filename) && (!rick_roll_bg || filename !== rickRollFilename)
-			);
+        if (playableFilenames.length === 0) {
+          console.warn("No GIFs are available to play.");
+          return;
+        }
 
-			if (playableFilenames.length === 0) {
-				console.warn('No GIFs with readable runtimes are available to play.');
-				return;
-			}
+        let remainingFilenames = [];
 
-			let remainingFilenames = [];
+        try {
+          const storedFilenames = JSON.parse(localStorage.getItem(storageKey));
+          if (Array.isArray(storedFilenames)) {
+            remainingFilenames = storedFilenames.filter((filename) =>
+              playableFilenames.includes(filename)
+            );
+          }
+        } catch {
+          // Use a new cycle when storage is unavailable or contains invalid data.
+        }
 
-			try {
-				const storedFilenames = JSON.parse(localStorage.getItem(storageKey));
-				if (Array.isArray(storedFilenames)) {
-					remainingFilenames = storedFilenames.filter((filename) => playableFilenames.includes(filename));
-				}
-			} catch {
-				// Use a new cycle when storage is unavailable or contains invalid data.
-			}
+        function takeNextFilename() {
+          if (remainingFilenames.length === 0) {
+            remainingFilenames = shuffle([...playableFilenames]);
+          }
 
-			function takeNextFilename() {
-				if (remainingFilenames.length === 0) {
-					remainingFilenames = shuffle([...playableFilenames]);
-				}
+          const filename = remainingFilenames.pop();
+          try {
+            localStorage.setItem(
+              storageKey,
+              JSON.stringify(remainingFilenames)
+            );
+          } catch {
+            // The current selection still works when storage is unavailable.
+          }
+          return filename;
+        }
 
-				const filename = remainingFilenames.pop();
-				try {
-					localStorage.setItem(storageKey, JSON.stringify(remainingFilenames));
-				} catch {
-					// The current selection still works when storage is unavailable.
-				}
-				return filename;
-			}
+        async function preloadGif(filename) {
+          try {
+            const response = await fetch(new URL(filename, assetBaseUrl));
+            if (!response.ok)
+              throw new Error(`Request failed with ${response.status}.`);
 
-			function playNextGif() {
-				const filename = takeNextFilename();
-				const loopDurationMs = durations.get(filename);
-				const loopCount = getLoopCount(loopDurationMs);
+            const bytes = await response.arrayBuffer();
+            const loopDurationMs = getGifLoopDurationMs(new Uint8Array(bytes));
+            const objectUrl = URL.createObjectURL(
+              new Blob([bytes], { type: "image/gif" })
+            );
+            const preloadedImage = new Image();
 
-				console.log(
-					`Current GIF — ${filename}: ${(loopDurationMs / 1000).toFixed(2)}s, ${loopCount} loops`
-				);
+            await new Promise((resolve, reject) => {
+              preloadedImage.addEventListener("load", resolve, { once: true });
+              preloadedImage.addEventListener("error", reject, { once: true });
+              preloadedImage.src = objectUrl;
+            });
 
-				image.addEventListener('load', () => {
-					let completedLoops = 0;
+            debugLog(`${filename}: ${(loopDurationMs / 1000).toFixed(2)}s`);
+            return { filename, loopDurationMs, objectUrl, preloadedImage };
+          } catch (error) {
+            console.warn(`Could not preload ${filename}.`, error);
+            return null;
+          }
+        }
 
-					function startLoop() {
-						completedLoops += 1;
-						console.count('start');
-						window.setTimeout(
-							completedLoops === loopCount ? playNextGif : startLoop,
-							loopDurationMs
-						);
-					}
+        async function preloadNextGif() {
+          for (let attempt = 0; attempt < playableFilenames.length; attempt += 1) {
+            const asset = await preloadGif(takeNextFilename());
+            if (asset) return asset;
+          }
 
-					startLoop();
-				}, { once: true });
+          console.warn("No GIFs could be preloaded.");
+          return null;
+        }
 
-				image.src = new URL(filename, assetBaseUrl);
-			}
+        function playGif(asset, previousAsset = null) {
+          const loopCount = getLoopCount(asset.loopDurationMs);
 
-			playNextGif();
-		}
+          debugLog(
+            `Current GIF — ${asset.filename}: ${(asset.loopDurationMs / 1000).toFixed(2)}s, ${loopCount} loops`
+          );
 
-		startPlaylist();
-	</script>
-</body>
+          image.addEventListener(
+            "load",
+            () => {
+              if (previousAsset) URL.revokeObjectURL(previousAsset.objectUrl);
+
+              const nextAssetPromise = preloadNextGif();
+              let completedLoops = 0;
+
+              async function startLoop() {
+                completedLoops += 1;
+                debugCount("start");
+
+                if (completedLoops === loopCount) {
+                  window.setTimeout(async () => {
+                    const nextAsset = await nextAssetPromise;
+                    if (nextAsset) playGif(nextAsset, asset);
+                  }, asset.loopDurationMs);
+                  return;
+                }
+
+                window.setTimeout(startLoop, asset.loopDurationMs);
+              }
+
+              startLoop();
+            },
+            { once: true }
+          );
+
+          image.src = asset.objectUrl;
+        }
+
+        const firstAsset = await preloadNextGif();
+        if (firstAsset) playGif(firstAsset);
+      }
+
+      startPlaylist();
+    </script>
+  </body>
 </html>

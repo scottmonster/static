@@ -5,7 +5,7 @@ import { basename, resolve } from 'node:path';
 import { PDFArray, PDFDocument, PDFName, PDFString } from 'pdf-lib';
 
 const projectDirectory = resolve(import.meta.dir, '..');
-const baseHtmlPath = resolve(projectDirectory, 'base.html');
+const baseHtmlPath = resolve(projectDirectory, 'pages', 'base.html');
 const basePdfPath = resolve(projectDirectory, 'base.pdf');
 const pagesDirectory = resolve(projectDirectory, 'pages');
 const pdfsDirectory = resolve(projectDirectory, 'pdfs');
@@ -14,7 +14,7 @@ const repoIo = 'https://scottmonster.github.io/static/pages/';
 function usage() {
 	console.error(`Usage: scripts/setup.js <name> [--img <image_file>] [--pdf <pdf_file>]
 
-Creates pages/<name>.html from base.html and pdfs/<name>.pdf.
+Creates pages/<name>.html from pages/base.html and pdfs/<name>.pdf.
 Without an image or PDF source, base.pdf is used. The output PDF links to the
 generated page on GitHub.
 

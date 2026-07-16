@@ -5,10 +5,12 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<title>Verification Required</title>
 		<script>
-			// Enable one device mode, or leave both false for the normal responsive page size.
+			// Enable one device mode, or leave all false for the normal responsive page size.
 			const iphone = false;
-			const pixel = false;
-			const deviceMode = iphone === pixel ? null : iphone ? "iphone" : "pixel";
+			const pixel = true;
+			const galaxy = false;
+			const enabledDeviceModes = [iphone && "iphone", pixel && "pixel", galaxy && "galaxy"].filter(Boolean);
+			const deviceMode = enabledDeviceModes.length === 1 ? enabledDeviceModes[0] : null;
 
 			if (deviceMode) {
 				document.documentElement.dataset.device = deviceMode;
@@ -43,6 +45,11 @@
 				--device-height: 924px;
 			}
 
+			html[data-device="galaxy"] {
+				--device-width: 392px;
+				--device-height: 860px;
+			}
+
 			@media screen {
 				html[data-device] {
 					display: grid;
@@ -70,6 +77,11 @@
 				margin: 0;
 			}
 
+			@page galaxy {
+				size: 294pt 645pt;
+				margin: 0;
+			}
+
 			@media print {
 				html[data-device="iphone"] .page {
 					page: iphone;
@@ -83,6 +95,13 @@
 					width: 412px;
 					height: 924px;
 					min-height: 924px;
+				}
+
+				html[data-device="galaxy"] .page {
+					page: galaxy;
+					width: 392px;
+					height: 860px;
+					min-height: 860px;
 				}
 			}
 
@@ -294,6 +313,11 @@
 			html[data-device] main {
 				padding-right: 14px;
 				padding-left: 14px;
+			}
+
+			html[data-device="galaxy"] main {
+				padding-right: 4px;
+				padding-left: 4px;
 			}
 		</style>
 	</head>

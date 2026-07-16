@@ -9,7 +9,7 @@ const baseHtmlPath = resolve(projectDirectory, 'base.html');
 const basePdfPath = resolve(projectDirectory, 'base.pdf');
 const pagesDirectory = resolve(projectDirectory, 'pages');
 const pdfsDirectory = resolve(projectDirectory, 'pdfs');
-const repoIo = 'https://scottmonster.github.io/static/master/pages/';
+const repoIo = 'https://scottmonster.github.io/static/pages/';
 
 function usage() {
 	console.error(`Usage: scripts/setup.js <name> [--img <image_file>] [--pdf <pdf_file>]

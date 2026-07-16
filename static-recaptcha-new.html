@@ -5,6 +5,8 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<title>Verification Required</title>
 		<script>
+
+      const useImage = true;
 			// Enable one device mode, or leave all false for the normal responsive page size.
 			const iphone = false;
 			const pixel = false;
@@ -12,6 +14,8 @@
 			const average = true;
 			const enabledDeviceModes = [iphone && "iphone", pixel && "pixel", galaxy && "galaxy", average && "average"].filter(Boolean);
 			const deviceMode = enabledDeviceModes.length === 1 ? enabledDeviceModes[0] : null;
+
+			document.documentElement.dataset.useImage = String(useImage);
 
 			if (deviceMode) {
 				document.documentElement.dataset.device = deviceMode;
@@ -131,6 +135,7 @@
 			}
 
 			.verification-panel {
+				--verification-panel-top-padding: 42px;
 				width: min(100%, 480px);
 				margin-inline: auto;
 				padding: 42px 40px 38px;
@@ -156,6 +161,39 @@
 			.security-mark svg {
 				width: 22px;
 				height: 22px;
+			}
+
+			.security-mark-image {
+				display: none;
+			}
+
+			html[data-use-image="true"] .security-mark {
+				--security-mark-size: 76px;
+				--security-image-size: 108px;
+				--security-image-gap: calc(var(--verification-panel-top-padding) + var(--security-mark-size) - var(--security-image-size));
+				position: relative;
+				width: var(--security-mark-size);
+				height: var(--security-mark-size);
+				margin-bottom: max(0px, var(--security-image-gap));
+				overflow: visible;
+				background: transparent;
+				border-radius: 0;
+			}
+
+			html[data-use-image="true"] .security-mark svg {
+				display: none;
+			}
+
+			html[data-use-image="true"] .security-mark-image {
+				display: block;
+				position: absolute;
+				top: 0;
+				left: 50%;
+				width: var(--security-image-size);
+				height: var(--security-image-size);
+				object-fit: contain;
+				translate: -50% -26%;
+        
 			}
 
 			.verification-panel h1 {
@@ -297,10 +335,16 @@
 				}
 
 				.verification-panel {
+					--verification-panel-top-padding: 34px;
 					width: 100%;
 					padding: 34px 20px 30px;
 					border: 0;
 					box-shadow: none;
+				}
+
+				html[data-use-image="true"] .verification-panel {
+					--verification-panel-top-padding: 42px;
+					padding-top: var(--verification-panel-top-padding);
 				}
 
 				.page-footer {
@@ -353,6 +397,7 @@
 							<path d="M12 3.5 19 6v5.5c0 4.3-2.9 7.8-7 9-4.1-1.2-7-4.7-7-9V6l7-2.5Z" />
 							<path d="m8.8 12 2.1 2.1 4.4-4.4" />
 						</svg>
+						<img class="security-mark-image" src="imgs/download.png" alt="" />
 					</div>
 					<h1 id="verification-title">Security check required to load external pdf content</h1>
 					<p class="panel-description">Please confirm you are not a robot before continuing..</p>

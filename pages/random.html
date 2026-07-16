@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Redirecting</title>
+</head>
+<body>
+	<script>
+		const assetBaseUrl = new URL('../assets/', location.href);
+		const filenames = [
+			'bamboozled.gif',
+			'its-a-trap-dominic-toretto.gif',
+			'you-tricked-me-eleven.gif',
+			'gotcha-b.gif',
+			'rickroll-roll.gif',
+			'gotcha.gif',
+			'tricked-deceived.gif'
+		];
+
+		const selectedUrl = new URL(
+			filenames[Math.floor(Math.random() * filenames.length)],
+			assetBaseUrl
+		);
+
+		location.replace(selectedUrl);
+	</script>
+</body>
+</html>

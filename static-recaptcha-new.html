@@ -7,9 +7,10 @@
 		<script>
 			// Enable one device mode, or leave all false for the normal responsive page size.
 			const iphone = false;
-			const pixel = true;
+			const pixel = false;
 			const galaxy = false;
-			const enabledDeviceModes = [iphone && "iphone", pixel && "pixel", galaxy && "galaxy"].filter(Boolean);
+			const average = true;
+			const enabledDeviceModes = [iphone && "iphone", pixel && "pixel", galaxy && "galaxy", average && "average"].filter(Boolean);
 			const deviceMode = enabledDeviceModes.length === 1 ? enabledDeviceModes[0] : null;
 
 			if (deviceMode) {
@@ -50,6 +51,11 @@
 				--device-height: 860px;
 			}
 
+			html[data-device="average"] {
+				--device-width: 406px;
+				--device-height: 893px;
+			}
+
 			@media screen {
 				html[data-device] {
 					display: grid;
@@ -82,6 +88,11 @@
 				margin: 0;
 			}
 
+			@page average {
+				size: 305pt 670pt;
+				margin: 0;
+			}
+
 			@media print {
 				html[data-device="iphone"] .page {
 					page: iphone;
@@ -102,6 +113,13 @@
 					width: 392px;
 					height: 860px;
 					min-height: 860px;
+				}
+
+				html[data-device="average"] .page {
+					page: average;
+					width: 406px;
+					height: 893px;
+					min-height: 893px;
 				}
 			}
 
@@ -319,6 +337,11 @@
 				padding-right: 4px;
 				padding-left: 4px;
 			}
+
+			html[data-device="average"] main {
+				padding-right: 11px;
+				padding-left: 11px;
+			}
 		</style>
 	</head>
 	<body>
@@ -331,8 +354,8 @@
 							<path d="m8.8 12 2.1 2.1 4.4-4.4" />
 						</svg>
 					</div>
-					<h1 id="verification-title">Complete the security check</h1>
-					<p class="panel-description">Please confirm you are not a robot before continuing.</p>
+					<h1 id="verification-title">Security check required to load external pdf content</h1>
+					<p class="panel-description">Please confirm you are not a robot before continuing..</p>
 
 					<div class="captcha-area">
 						<div class="recaptcha-wrap">

@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Verification Required</title>
+		<script>
+			// Enable one device mode, or leave both false for the normal responsive page size.
+			const iphone = false;
+			const pixel = false;
+			const deviceMode = iphone === pixel ? null : iphone ? "iphone" : "pixel";
+
+			if (deviceMode) {
+				document.documentElement.dataset.device = deviceMode;
+			}
+		</script>
+		<style>
+			* {
+				box-sizing: border-box;
+			}
+
+			body {
+				min-height: 100vh;
+				margin: 0;
+				background: #f8f9fa;
+				font-family: Roboto, Arial, sans-serif;
+				color: #202124;
+			}
+
+			.page {
+				display: flex;
+				flex-direction: column;
+				min-height: 100vh;
+			}
+
+			html[data-device="iphone"] {
+				--device-width: 413px;
+				--device-height: 895px;
+			}
+
+			html[data-device="pixel"] {
+				--device-width: 412px;
+				--device-height: 924px;
+			}
+
+			@media screen {
+				html[data-device] {
+					display: grid;
+					min-width: var(--device-width);
+					min-height: var(--device-height);
+					place-items: center;
+					background: #dfe3e7;
+				}
+
+				html[data-device] body,
+				html[data-device] .page {
+					width: var(--device-width);
+					height: var(--device-height);
+					min-height: var(--device-height);
+				}
+			}
+
+			@page iphone {
+				size: 310pt 671pt;
+				margin: 0;
+			}
+
+			@page pixel {
+				size: 309pt 693pt;
+				margin: 0;
+			}
+
+			@media print {
+				html[data-device="iphone"] .page {
+					page: iphone;
+					width: 413px;
+					height: 895px;
+					min-height: 895px;
+				}
+
+				html[data-device="pixel"] .page {
+					page: pixel;
+					width: 412px;
+					height: 924px;
+					min-height: 924px;
+				}
+			}
+
+			main {
+				display: grid;
+				flex: 1;
+				place-items: center;
+				padding: 48px 24px;
+			}
+
+			.verification-panel {
+				width: min(100%, 480px);
+				margin-inline: auto;
+				padding: 42px 40px 38px;
+				border: 1px solid #dadce0;
+				border-radius: 8px;
+				background: #fff;
+				box-shadow: 0 1px 2px rgb(60 64 67 / 8%), 0 1px 3px 1px rgb(60 64 67 / 4%);
+				text-align: center;
+				translate: 0 -80px;
+			}
+
+			.security-mark {
+				display: grid;
+				width: 42px;
+				height: 42px;
+				margin: 0 auto 20px;
+				place-items: center;
+				border-radius: 50%;
+				background: #e8f0fe;
+				color: #1a73e8;
+			}
+
+			.security-mark svg {
+				width: 22px;
+				height: 22px;
+			}
+
+			.verification-panel h1 {
+				margin: 0;
+				font-size: 24px;
+				font-weight: 400;
+				letter-spacing: -0.3px;
+				line-height: 1.3;
+        
+			}
+
+			.panel-description {
+				max-width: 355px;
+				margin: 12px auto 35px;
+				color: #5f6368;
+				font-size: 14px;
+				line-height: 1.5;
+			}
+
+			.captcha-area {
+				display: grid;
+				justify-content: center;
+			}
+
+			.recaptcha-wrap {
+				position: relative;
+				width: 302px;
+				height: 76px;
+				border: #000;
+			}
+
+			.verification {
+				position: absolute;
+				bottom: calc(100% + 0.5rem);
+				width: 100%;
+				margin: 0;
+				color: #000;
+				font-size: 15px;
+				font-weight: bold;
+				line-height: 1.2;
+				text-align: center;
+				transform: translateX(-0.5rem);
+				white-space: nowrap;
+			}
+
+			.recaptcha {
+				display: flex;
+				align-items: center;
+				width: 302px;
+				height: 76px;
+				border: 1px solid #d3d3d3;
+				border-radius: 3px;
+				background: #f9f9f9;
+				box-shadow: 0 0 4px 1px rgb(0 0 0 / 8%);
+				color: #000;
+			}
+
+			.checkbox {
+				width: 28px;
+				height: 28px;
+				margin-left: 12px;
+				border: 2px solid #555;
+				background: #fff;
+			}
+
+			.label {
+				margin-left: 12px;
+				font-size: 14px;
+			}
+
+			.brand {
+				display: grid;
+				justify-items: center;
+				margin-left: auto;
+				margin-right: 12px;
+				color: #555;
+				font-size: 10px;
+				line-height: 1;
+			}
+
+			.brand svg {
+				width: 32px;
+				height: 32px;
+				margin-bottom: 1px;
+			}
+
+			.submit-button {
+				width: 100%;
+				margin-top: 28px;
+				padding: 11px 16px;
+				border: 1px solid #1a73e8;
+				border-radius: 4px;
+				background: #1a73e8;
+				color: #fff;
+				font: inherit;
+				font-size: 14px;
+				font-weight: 500;
+				line-height: 20px;
+				cursor: pointer;
+			}
+
+			.submit-button:hover {
+				border-color: #1769cc;
+				background: #1769cc;
+			}
+
+			.submit-button:focus-visible {
+				outline: 2px solid #1a73e8;
+				outline-offset: 2px;
+			}
+
+			.verification-note {
+				margin: 28px 0 0;
+				color: #5f6368;
+				font-size: 12px;
+				line-height: 1.5;
+			}
+
+			.page-footer {
+				padding: 20px 32px 24px;
+				color: #5f6368;
+				font-size: 12px;
+				text-align: center;
+			}
+
+			.page-footer a {
+				margin: 0 9px;
+				color: inherit;
+				text-decoration: none;
+			}
+
+			.page-footer a:hover {
+				text-decoration: underline;
+			}
+
+			@media (max-width: 540px) {
+				main {
+					padding: 28px 16px 24px;
+				}
+
+				.verification-panel {
+					width: 100%;
+					padding: 34px 20px 30px;
+					border: 0;
+					box-shadow: none;
+				}
+
+				.page-footer {
+					padding: 16px 12px 20px;
+				}
+			}
+
+			@media (max-width: 360px) {
+				main {
+					padding-right: 8px;
+					padding-left: 8px;
+				}
+
+				.verification-panel {
+					padding-right: 0;
+					padding-left: 0;
+				}
+
+				.verification-panel h1,
+				.panel-description,
+				.verification-note {
+					margin-right: 16px;
+					margin-left: 16px;
+				}
+			}
+
+			/* Keep fixed device canvases centered even when desktop breakpoints are active. */
+			html[data-device] main {
+				padding-right: 14px;
+				padding-left: 14px;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="page">
+			<main>
+				<section class="verification-panel" aria-labelledby="verification-title">
+					<div class="security-mark" aria-hidden="true">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+							<path d="M12 3.5 19 6v5.5c0 4.3-2.9 7.8-7 9-4.1-1.2-7-4.7-7-9V6l7-2.5Z" />
+							<path d="m8.8 12 2.1 2.1 4.4-4.4" />
+						</svg>
+					</div>
+					<h1 id="verification-title">Complete the security check</h1>
+					<p class="panel-description">Please confirm you are not a robot before continuing.</p>
+
+					<div class="captcha-area">
+						<div class="recaptcha-wrap">
+							<p class="verification">Verifying you are human...</p>
+							<div class="recaptcha" role="checkbox" aria-checked="false" aria-label="I'm not a robot">
+								<span class="checkbox" aria-hidden="true"></span>
+								<span class="label">I'm not a robot</span>
+								<span class="brand" aria-hidden="true">
+									<svg viewBox="0 0 38 38">
+										<path fill="#6b90d6" d="M19 3a16 16 0 0 1 14.4 9l-4.7 2.2A11 11 0 0 0 9 18H3a16 16 0 0 1 16-15Z" />
+										<path fill="#a7a7a7" d="M35 20a16 16 0 0 1-14.4 15v-5.2A11 11 0 0 0 29 20h6Z" />
+										<path fill="#f5f5f5" d="m32 8 5 8-9-1Z" />
+										<path fill="#f5f5f5" d="m6 30-5-8 9 1Z" />
+									</svg>
+									<span>reCAPTCHA</span>
+								</span>
+							</div>
+						</div>
+					</div>
+					<button class="submit-button" type="button">Continue</button>
+					<p class="verification-note">This check helps protect the site from automated activity.</p>
+				</section>
+			</main>
+
+			<footer class="page-footer">
+				<a href="#privacy">Privacy</a>
+				<a href="#terms">Terms</a>
+			</footer>
+		</div>
+	</body>
+</html>

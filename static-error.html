@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Your Connection Is Not Private</title>
+		<style>
+			* {
+				box-sizing: border-box;
+			}
+
+			body {
+				min-height: 100vh;
+				margin: 0;
+				padding: clamp(8rem, 21.4vh, 11rem) 2rem 2rem;
+				background: #202124;
+				color: #9aa0a6;
+				font-family: 'Open Sans', Arial, sans-serif;
+			}
+
+			main {
+				width: min(100%, 37.5rem);
+				margin: 0 auto;
+			}
+
+			.warning-icon {
+				display: grid;
+				width: 66px;
+				height: 58px;
+				margin-bottom: 41px;
+				place-items: center;
+				padding-top: 11px;
+				background: #e8443b;
+				clip-path: polygon(50% 0, 100% 100%, 0 100%);
+				color: #fff;
+				font-size: 26px;
+				font-weight: 700;
+			}
+
+			h1 {
+				margin: 0 0 1.35rem;
+				font-size: 24px;
+				font-weight: 400;
+				line-height: 1.2;
+			}
+
+			p {
+				margin: 0;
+				font-size: 14px;
+				line-height: 1.55;
+			}
+
+			a {
+				color: #8ab4f8;
+			}
+
+			.error-code {
+				margin-top: 1rem;
+				font-size: 12px;
+			}
+
+			.actions {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				margin-top: 47px;
+			}
+
+			.action {
+				display: block;
+				height: 36px;
+				padding: 9px;
+				border-radius: 20px;
+				font-size: 13.125px;
+				line-height: 18px;
+				text-decoration: none;
+			}
+
+			.advanced {
+				padding: 8px;
+				border: 1px solid #c1c4ff;
+				background: transparent;
+				color: #c1c4ff;
+			}
+
+			.safety {
+				background: #c1c4ff;
+				color: #202124;
+			}
+		</style>
+	</head>
+	<body>
+		<main>
+			<div class="warning-icon" aria-hidden="true">!</div>
+			<h1>Your connection is not private</h1>
+			<p>
+				Attackers might be trying to steal your information from
+				<strong>self-signed.badssl.com</strong>
+				(for example, passwords, messages, or credit cards).
+				<a href="#">Learn more about this warning</a>
+			</p>
+			<p class="error-code">NET::ERR_CERT_AUTHORITY_INVALID</p>
+			<div class="actions">
+				<span class="action advanced">Advanced</span>
+				<span class="action safety">Back to safety</span>
+			</div>
+		</main>
+	</body>
+</html>

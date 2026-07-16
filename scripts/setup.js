@@ -2,19 +2,23 @@
 
 import { copyFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { basename, resolve } from 'node:path';
-import { PDFDocument } from 'pdf-lib';
+import { PDFArray, PDFDocument, PDFName, PDFString } from 'pdf-lib';
 
 const projectDirectory = resolve(import.meta.dir, '..');
 const baseHtmlPath = resolve(projectDirectory, 'base.html');
 const basePdfPath = resolve(projectDirectory, 'base.pdf');
 const pagesDirectory = resolve(projectDirectory, 'pages');
 const pdfsDirectory = resolve(projectDirectory, 'pdfs');
+const rawPagesBaseUrl = 'https://raw.githubusercontent.com/scottmonster/static/master/pages/';
+
+const repoPages = 'https://raw.githubusercontent.com/scottmonster/static/master/pages'
 
 function usage() {
 	console.error(`Usage: scripts/setup.js <name> [--img <image_file>] [--pdf <pdf_file>]
 
 Creates pages/<name>.html from base.html and pdfs/<name>.pdf.
-Without an image or PDF source, base.pdf is used.
+Without an image or PDF source, base.pdf is used. The output PDF links to the
+generated page on GitHub.
 
 Options:
   -i, --img <image_file>  Create the PDF from a PNG or JPEG image.
@@ -76,7 +80,25 @@ async function createPdfFromImage(imagePath) {
 
 	const page = pdf.addPage([image.width, image.height]);
 	page.drawImage(image, { x: 0, y: 0, width: image.width, height: image.height });
-	return pdf.save();
+	return pdf;
+}
+
+function addFullPageUriLink(pdf, page, url) {
+	const link = pdf.context.obj({
+		Type: 'Annot',
+		Subtype: 'Link',
+		Rect: [0, 0, page.getWidth(), page.getHeight()],
+		Border: [0, 0, 0],
+		A: { Type: 'Action', S: 'URI', URI: PDFString.of(url) }
+	});
+	const linkRef = pdf.context.register(link);
+	const annotations = page.node.get(PDFName.of('Annots'));
+
+	if (annotations) {
+		pdf.context.lookup(annotations, PDFArray).push(linkRef);
+	} else {
+		page.node.set(PDFName.of('Annots'), pdf.context.obj([linkRef]));
+	}
 }
 
 try {
@@ -90,11 +112,16 @@ try {
 	]);
 	await copyFile(baseHtmlPath, htmlOutputPath);
 
-	if (imagePath) {
-		await writeFile(pdfOutputPath, await createPdfFromImage(imagePath));
-	} else {
-		await copyFile(pdfPath ?? basePdfPath, pdfOutputPath);
+	const pdf = imagePath
+		? await createPdfFromImage(imagePath)
+		: await PDFDocument.load(await readFile(pdfPath ?? basePdfPath));
+	const pageUrl = new URL(`${encodeURIComponent(name)}.html`, rawPagesBaseUrl).href;
+
+	for (const page of pdf.getPages()) {
+		addFullPageUriLink(pdf, page, pageUrl);
 	}
+
+	await writeFile(pdfOutputPath, await pdf.save());
 
 	console.log(`Created ${htmlOutputPath} and ${pdfOutputPath}`);
 } catch (error) {
